@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // === State ===
     let consumptions = [];
     let selectedCaffeine = null;
+    let caffeineChart = null;
     const STORAGE_KEY = 'cafeine_aujourdhui';
     const LAST_ACCESS_KEY = 'cafeine_last_access_date';
 
@@ -16,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const safeBox = document.getElementById('safe-box');
     const activeCaffeineSafeSpan = document.getElementById('active-caffeine-safe');
     const resetBtn = document.getElementById('reset-btn');
+    const chartCanvas = document.getElementById('caffeineChart');
 
     // === Initialization ===
     init();
@@ -171,6 +173,121 @@ document.addEventListener('DOMContentLoaded', () => {
         return Math.round(totalActive);
     }
 
+    function calculateCaffeineAtTime(targetHours) {
+        let totalActive = 0;
+
+        consumptions.forEach(item => {
+            const [h, m] = item.time.split(':').map(Number);
+            const consumptionTimeInHours = h + (m / 60);
+
+            let timeElapsed = targetHours - consumptionTimeInHours;
+
+            if (timeElapsed < 0) {
+                return;
+            }
+
+            const remaining = item.quantity * Math.pow(0.5, timeElapsed / 5);
+            totalActive += remaining;
+        });
+
+        return totalActive;
+    }
+
+    function generateChartData() {
+        const now = new Date();
+        const currentHours = now.getHours() + (now.getMinutes() / 60);
+        
+        const labels = [];
+        const data = [];
+        const backgroundColors = [];
+
+        // Generate data points every hour for 24 hours
+        for (let i = 0; i <= 24; i++) {
+            const hours = (currentHours - 12 + i) % 24;
+            if (hours < 0) continue;
+            
+            const h = Math.floor(hours);
+            const timeLabel = `${String(h).padStart(2, '0')}:00`;
+            
+            labels.push(timeLabel);
+            const caffeineLevel = calculateCaffeineAtTime(hours);
+            data.push(caffeineLevel);
+            
+            // Color based on whether it's past or future
+            if (hours <= currentHours) {
+                backgroundColors.push('rgba(76, 175, 80, 0.6)'); // Green for past
+            } else {
+                backgroundColors.push('rgba(33, 150, 243, 0.4)'); // Blue for future projection
+            }
+        }
+
+        return { labels, data, backgroundColors };
+    }
+
+    function renderChart() {
+        const { labels, data, backgroundColors } = generateChartData();
+
+        if (caffeineChart) {
+            caffeineChart.destroy();
+        }
+
+        const ctx = chartCanvas.getContext('2d');
+        caffeineChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Caféine active (mg)',
+                    data: data,
+                    borderColor: 'rgba(76, 175, 80, 1)',
+                    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 0,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${Math.round(context.parsed.y)} mg`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45,
+                            autoSkip: true,
+                            maxTicksLimit: 12
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + ' mg';
+                            }
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                }
+            }
+        });
+    }
+
     function render() {
         // Check for day change before rendering
         checkMidnightReset();
@@ -201,6 +318,9 @@ document.addEventListener('DOMContentLoaded', () => {
             safeBox.classList.remove('hidden');
             warningBox.classList.add('hidden');
         }
+
+        // Render Chart
+        renderChart();
     }
 
     // Refresh calculations every minute to update "Active Caffeine" 

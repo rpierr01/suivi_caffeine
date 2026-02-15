@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Suivi Caféine</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
@@ -30,6 +31,13 @@
             <ul id="history-list">
                 <!-- Items will be added here dynamically -->
             </ul>
+        </section>
+
+        <section class="chart-section">
+            <h2>Évolution du niveau de caféine</h2>
+            <div class="chart-container">
+                <canvas id="caffeineChart"></canvas>
+            </div>
         </section>
 
         <section class="summary">
