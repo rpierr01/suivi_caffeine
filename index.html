@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suivi Caféine</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Suivi Caféine</h1>
+        </header>
+
+        <section class="add-consumption">
+            <h2>Ajouter une consommation</h2>
+            <div class="coffee-buttons">
+                <button class="coffee-btn" data-caffeine="80">☕ Expresso<br><small>80 mg</small></button>
+                <button class="coffee-btn" data-caffeine="120">☕ Allongé<br><small>120 mg</small></button>
+            </div>
+            <div class="input-group">
+                <label for="time">Heure :</label>
+                <input type="time" id="time">
+            </div>
+            <button id="validate-btn">Valider</button>
+        </section>
+
+        <section class="history">
+            <h2>Historique aujourd'hui</h2>
+            <ul id="history-list">
+                <!-- Items will be added here dynamically -->
+            </ul>
+        </section>
+
+        <section class="summary">
+            <div class="total">
+                <span>Total journalier :</span>
+                <span id="total-consumed">0 mg</span>
+            </div>
+            <div id="warning-box" class="warning hidden">
+                <p>⚠️ Attention : ~<span id="active-caffeine">0</span> mg de caféine active.</p>
+                <p>Risque de perturbation du sommeil.</p>
+            </div>
+            <div id="safe-box" class="safe">
+                <p>✅ Niveau de caféine active : <span id="active-caffeine-safe">0</span> mg</p>
+            </div>
+        </section>
+
+        <section class="actions">
+            <button id="reset-btn" class="secondary">Réinitialiser la journée</button>
+        </section>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
