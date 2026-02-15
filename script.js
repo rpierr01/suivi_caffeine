@@ -201,13 +201,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = [];
         const backgroundColors = [];
 
-        // Generate data points every hour for 24 hours
+        // Generate data points every hour starting from 6:00 for 24 hours
         for (let i = 0; i <= 24; i++) {
-            const hours = (currentHours - 12 + i) % 24;
-            if (hours < 0) continue;
+            const hours = (6 + i) % 24;
             
-            const h = Math.floor(hours);
-            const timeLabel = `${String(h).padStart(2, '0')}:00`;
+            const timeLabel = `${String(hours).padStart(2, '0')}:00`;
             
             labels.push(timeLabel);
             const caffeineLevel = calculateCaffeineAtTime(hours);
